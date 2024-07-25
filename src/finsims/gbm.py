@@ -1,7 +1,5 @@
-import numpy as np
 import matplotlib.pyplot as plt
-import json
-from datetime import date
+import numpy as np
 
 
 def simulate_gbm(mu, sigma, S0, n, M, T):
@@ -9,7 +7,7 @@ def simulate_gbm(mu, sigma, S0, n, M, T):
     dt = T / n
     # simulation using numpy arrays
     St = np.exp(
-        (mu - sigma ** 2 / 2) * dt
+        (mu - sigma**2 / 2) * dt
         + sigma * np.random.normal(0, np.sqrt(dt), size=(M, n)).T
     )
     # include array of 1's
@@ -27,15 +25,14 @@ def plot_gbm(St, n, M, T, S0, mu, sigma):
     plt.ylabel("Stock Price $(S_t)$")
     plt.title(
         "Realizations of Geometric Brownian Motion\n $dS_t = \mu S_t dt + \sigma S_t dW_t$\n $S_0 = {0}, \mu = {1}, \sigma = {2}$".format(
-            S0, mu, sigma)
+            S0, mu, sigma
+        )
     )
     plt.show()
 
 
 def estimate_sigma(series, dt):
-    return np.sqrt(
-        (np.diff(series) ** 2).sum() / (len(series) * dt)
-    )
+    return np.sqrt((np.diff(series) ** 2).sum() / (len(series) * dt))
 
 
 def estimate_log_mu(series, dt):
@@ -43,7 +40,7 @@ def estimate_log_mu(series, dt):
 
 
 def estimate_mu(log_mu, sigma):
-    return log_mu + 0.5 * sigma ** 2
+    return log_mu + 0.5 * sigma**2
 
 
 def estimate_parameters(series, T, n, ret_distribution=False):
@@ -62,4 +59,3 @@ def estimate_parameters(series, T, n, ret_distribution=False):
         return estimated_sigmas, estimated_mus
     else:
         return estimated_sigmas.mean(), estimated_mus.mean()
-

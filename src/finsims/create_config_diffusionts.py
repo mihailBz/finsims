@@ -21,8 +21,8 @@ def create_yaml_config(dataset_number):
                 "attn_pd": 0.0,
                 "resid_pd": 0.0,
                 "kernel_size": 1,
-                "padding_size": 0
-            }
+                "padding_size": 0,
+            },
         },
         "solver": {
             "base_lr": 1.0e-5,
@@ -30,10 +30,7 @@ def create_yaml_config(dataset_number):
             "results_folder": f"./Checkpoints_gbm-{dataset_number}",
             "gradient_accumulate_every": 2,
             "save_cycle": 1000,
-            "ema": {
-                "decay": 0.995,
-                "update_interval": 10
-            },
+            "ema": {"decay": 0.995, "update_interval": 10},
             "scheduler": {
                 "target": "engine.lr_sch.ReduceLROnPlateauWithWarmup",
                 "params": {
@@ -44,9 +41,9 @@ def create_yaml_config(dataset_number):
                     "threshold_mode": "rel",
                     "warmup_lr": 8.0e-4,
                     "warmup": 500,
-                    "verbose": False
-                }
-            }
+                    "verbose": False,
+                },
+            },
         },
         "dataloader": {
             "train_dataset": {
@@ -59,8 +56,8 @@ def create_yaml_config(dataset_number):
                     "save2npy": True,
                     "neg_one_to_one": True,
                     "seed": 123,
-                    "period": "train"
-                }
+                    "period": "train",
+                },
             },
             "test_dataset": {
                 "target": "Utils.Data_utils.real_datasets.CustomDataset",
@@ -77,18 +74,18 @@ def create_yaml_config(dataset_number):
                     "distribution": "geometric",
                     "coefficient": 1.0e-2,
                     "step_size": 5.0e-2,
-                    "sampling_steps": 200
-                }
+                    "sampling_steps": 200,
+                },
             },
             "batch_size": 64,
             "sample_size": 256,
-            "shuffle": True
-        }
+            "shuffle": True,
+        },
     }
 
     # Write YAML file
-    file_name = f'config_gbm_{dataset_number}.yaml'
-    with open(file_name, 'w') as file:
+    file_name = f"config_gbm_{dataset_number}.yaml"
+    with open(file_name, "w") as file:
         yaml.dump(config, file, default_flow_style=False)
 
 
@@ -98,5 +95,5 @@ def main():
         create_yaml_config(i)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
