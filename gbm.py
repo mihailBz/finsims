@@ -46,7 +46,7 @@ def estimate_mu(log_mu, sigma):
     return log_mu + 0.5 * sigma ** 2
 
 
-def estimate_parameters(series, T, n):
+def estimate_parameters(series, T, n, ret_distribution=False):
     log_st = np.log(series).T
     estimated_mus = []
     estimated_sigmas = []
@@ -58,5 +58,8 @@ def estimate_parameters(series, T, n):
         estimated_sigmas.append(estimated_sigma)
     estimated_sigmas = np.array(estimated_sigmas)
     estimated_mus = np.array(estimated_mus)
-    return estimated_sigmas.mean(), estimated_mus.mean()
+    if ret_distribution:
+        return estimated_sigmas, estimated_mus
+    else:
+        return estimated_sigmas.mean(), estimated_mus.mean()
 
