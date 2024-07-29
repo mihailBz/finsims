@@ -11,7 +11,7 @@ def inverse_cosine_transform(series):
     return idct(series, norm="ortho")
 
 
-def simulate_gbm(mu, sigma, n, M, dt, s0=None):
+def simulate_gbm(mu, sigma, n, M, dt, s0=None, cos_transform=False):
     St = np.exp(
         (mu - (sigma**2) / 2) * dt
         + sigma * np.sqrt(dt) * np.random.normal(0, 1, size=(M, n)).T
@@ -21,7 +21,11 @@ def simulate_gbm(mu, sigma, n, M, dt, s0=None):
         St = s0 * St.cumprod(axis=0)
     else:
         St = St.cumprod(axis=0)
-    return St
+
+    if cos_transform:
+        return cosine_transform(St)
+    else:
+        return St
 
 
 def plot_gbm(St, n, M, dt, mu, sigma, s0=None):

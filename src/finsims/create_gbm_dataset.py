@@ -12,31 +12,25 @@ def main(format_):
     ]
 
     gbm_parameters = [
-        {"mu": 0.0, "sigma": 0.2},
-        {"mu": 0.2, "sigma": 0.0},
-        {"mu": 0.05, "sigma": 0.1},
-        {"mu": 0.05, "sigma": 0.2},
-        {"mu": 0.05, "sigma": 0.3},
-        {"mu": 0.05, "sigma": 0.4},
-        {"mu": 0.1, "sigma": 0.1},
-        {"mu": 0.1, "sigma": 0.2},
-        {"mu": 0.1, "sigma": 0.3},
+        {"mu": 0.0, "sigma": 0.4},
+        {"mu": 0.0, "sigma": 0.6},
+        {"mu": 0.0, "sigma": 0.8},
+        {"mu": 0.0, "sigma": 1.0},
         {"mu": 0.1, "sigma": 0.4},
-        {"mu": 0.2, "sigma": 0.1},
-        {"mu": 0.2, "sigma": 0.2},
-        {"mu": 0.2, "sigma": 0.3},
-        {"mu": 0.2, "sigma": 0.4},
-        {"mu": 0.5, "sigma": 0.1},
-        {"mu": 0.5, "sigma": 0.2},
-        {"mu": 0.5, "sigma": 0.3},
-        {"mu": 0.5, "sigma": 0.4},
+        {"mu": 0.1, "sigma": 0.6},
+        {"mu": 0.1, "sigma": 0.8},
+        {"mu": 0.1, "sigma": 1.0},
+        {"mu": 0.3, "sigma": 0.4},
+        {"mu": 0.3, "sigma": 0.6},
+        {"mu": 0.3, "sigma": 0.8},
+        {"mu": 0.3, "sigma": 1.0},
     ]
 
     i = 1
     for sim_param in simulation_parameters:
         for gbm_param in gbm_parameters:
             n = sim_param["n"]
-            St = simulate_gbm(dt=1 / n, **sim_param, **gbm_param)
+            St = simulate_gbm(cos_transform=True, dt=1 / n, **sim_param, **gbm_param)
             dir_path = f"{format_}_dataset"
             os.makedirs(dir_path, exist_ok=True)
             save_dataset(f"./{dir_path}/gbm-{i}", St, format_)
