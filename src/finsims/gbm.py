@@ -66,29 +66,3 @@ def estimate_parameters(series, dt, ret_distribution=False):
         return estimated_sigmas, estimated_mus
     else:
         return estimated_sigmas.mean(), estimated_mus.mean()
-
-
-def main():
-    mu = 0.05
-    sigma = 0.3
-    n = 100
-    M = 5
-    # T = 1
-    dt = 1 / n
-    St = simulate_gbm(mu, sigma, n, M, dt)
-    print(St[0, :])
-    plot_gbm(St, n, M, dt, mu, sigma)
-    estimated_sigma, estimated_mu = estimate_parameters(St, dt)
-    print(f"Estimated sigma: {estimated_sigma}, Estimated mu: {estimated_mu}")
-
-    transformed = dct(St, norm="ortho")
-    plot_gbm(transformed, n, M, dt, mu, sigma)
-    recovered = idct(transformed, norm="ortho")
-    plot_gbm(recovered, n, M, dt, mu, sigma)
-
-    estimated_sigma, estimated_mu = estimate_parameters(recovered, dt)
-    print(f"Estimated sigma: {estimated_sigma}, Estimated mu: {estimated_mu}")
-
-
-if __name__ == "__main__":
-    main()
