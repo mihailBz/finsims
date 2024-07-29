@@ -1,8 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
 from gbm import estimate_parameters
-from py_vollib_vectorized import vectorized_implied_volatility as implied_vol
 
 
 def main():
@@ -17,7 +15,7 @@ def main():
     kappa = 3  # rate of mean reversion of variance under risk-neutral dynamics
     theta = 0.20**2  # long-term mean of variance under risk-neutral dynamics
     v0 = 0.25**2  # initial variance under risk-neutral dynamics
-    rho = 0.7  # correlation between returns and variances under risk-neutral dynamics
+    # rho = 0.7  # correlation between returns and variances under risk-neutral dynamics
     sigma = 0.6  # volatility of volatility
 
     rho_p = 0.98
