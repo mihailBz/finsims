@@ -1,32 +1,39 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.fftpack import dct, idct
 
 
-def simulate_gbm(mu, sigma, S0, n, M, T):
-    # calc each time step
-    dt = T / n
-    # simulation using numpy arrays
+def cosine_transform(series):
+    return dct(series, norm="ortho")
+
+
+def inverse_cosine_transform(series):
+    return idct(series, norm="ortho")
+
+
+def simulate_gbm(mu, sigma, n, M, dt, s0=None):
     St = np.exp(
-        (mu - sigma**2 / 2) * dt
-        + sigma * np.random.normal(0, np.sqrt(dt), size=(M, n)).T
+        (mu - (sigma**2) / 2) * dt
+        + sigma * np.sqrt(dt) * np.random.normal(0, 1, size=(M, n)).T
     )
-    # include array of 1's
-    St = np.vstack([np.ones(M), St])
-    # multiply through by S0 and return the cumulative product of elements along a given simulation path (axis=0).
-    St = S0 * St.cumprod(axis=0)
+    if s0 is not None:
+        St = np.vstack([np.ones(M), St])
+        St = s0 * St.cumprod(axis=0)
+    else:
+        St = St.cumprod(axis=0)
     return St
 
 
-def plot_gbm(St, n, M, T, S0, mu, sigma):
-    time = np.linspace(0, T, n + 1)
-    tt = np.full(shape=(M, n + 1), fill_value=time).T
+def plot_gbm(St, n, M, dt, mu, sigma, s0=None):
+    time = np.linspace(0, n * dt, St.shape[0])
+    tt = np.full(shape=(M, St.shape[0]), fill_value=time).T
     plt.plot(tt, St)
     plt.xlabel("Years $(t)$")
     plt.ylabel("Stock Price $(S_t)$")
     plt.title(
-        "Realizations of Geometric Brownian Motion\n $dS_t = \mu S_t dt + \sigma S_t dW_t$\n $S_0 = {0}, \mu = {1}, \sigma = {2}$".format(
-            S0, mu, sigma
-        )
+        f"Realizations of Geometric Brownian Motion\n"
+        f"$dS_t = \\mu S_t dt + \\sigma S_t dW_t$; "
+        f"$S_0 = {s0}, \\mu = {mu}, \\sigma = {sigma}$"
     )
     plt.show()
 
@@ -43,13 +50,13 @@ def estimate_mu(log_mu, sigma):
     return log_mu + 0.5 * sigma**2
 
 
-def estimate_parameters(series, T, n, ret_distribution=False):
+def estimate_parameters(series, dt, ret_distribution=False):
     log_st = np.log(series).T
     estimated_mus = []
     estimated_sigmas = []
     for i, path in enumerate(log_st):
-        estimated_sigma = estimate_sigma(path, dt=T / n)
-        log_mu = estimate_log_mu(path, dt=T / n)
+        estimated_sigma = estimate_sigma(path, dt=dt)
+        log_mu = estimate_log_mu(path, dt=dt)
         estimated_mu = estimate_mu(log_mu, estimated_sigma)
         estimated_mus.append(estimated_mu)
         estimated_sigmas.append(estimated_sigma)
@@ -59,3 +66,29 @@ def estimate_parameters(series, T, n, ret_distribution=False):
         return estimated_sigmas, estimated_mus
     else:
         return estimated_sigmas.mean(), estimated_mus.mean()
+
+
+def main():
+    mu = 0.05
+    sigma = 0.3
+    n = 100
+    M = 5
+    # T = 1
+    dt = 1 / n
+    St = simulate_gbm(mu, sigma, n, M, dt)
+    print(St[0, :])
+    plot_gbm(St, n, M, dt, mu, sigma)
+    estimated_sigma, estimated_mu = estimate_parameters(St, dt)
+    print(f"Estimated sigma: {estimated_sigma}, Estimated mu: {estimated_mu}")
+
+    transformed = dct(St, norm="ortho")
+    plot_gbm(transformed, n, M, dt, mu, sigma)
+    recovered = idct(transformed, norm="ortho")
+    plot_gbm(recovered, n, M, dt, mu, sigma)
+
+    estimated_sigma, estimated_mu = estimate_parameters(recovered, dt)
+    print(f"Estimated sigma: {estimated_sigma}, Estimated mu: {estimated_mu}")
+
+
+if __name__ == "__main__":
+    main()

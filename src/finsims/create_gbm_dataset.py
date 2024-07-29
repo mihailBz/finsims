@@ -8,9 +8,7 @@ from gbm import simulate_gbm
 
 def main(format_):
     simulation_parameters = [
-        # {'n': 1000, 'M': 1},
-        # {'n': 5000, 'M': 1},
-        {"n": 10000, "M": 1},
+        {"n": 1000, "M": 1000},
     ]
 
     gbm_parameters = [
@@ -37,9 +35,10 @@ def main(format_):
     i = 1
     for sim_param in simulation_parameters:
         for gbm_param in gbm_parameters:
-            St = simulate_gbm(S0=100, T=1, **sim_param, **gbm_param)
+            n = sim_param["n"]
+            St = simulate_gbm(dt=1 / n, **sim_param, **gbm_param)
             dir_path = f"{format_}_dataset"
-            os.makedirs(dir_path)
+            os.makedirs(dir_path, exist_ok=True)
             save_dataset(f"./{dir_path}/gbm-{i}", St, format_)
 
             parameters = {
@@ -66,4 +65,4 @@ def save_dataset(filename, St, format_):
 
 
 if __name__ == "__main__":
-    main("diffusionts")
+    main("tsdiff")
