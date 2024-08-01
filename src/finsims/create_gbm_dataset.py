@@ -1,3 +1,4 @@
+import argparse
 import json
 import os
 from datetime import date
@@ -6,32 +7,22 @@ import numpy as np
 from gbm import simulate_gbm
 
 
-def main(format_):
-    simulation_parameters = [
-        {"n": 1000, "M": 1000},
-    ]
+def load_config(config_path):
+    with open(config_path, "r") as f:
+        return json.load(f)
 
-    gbm_parameters = [
-        {"mu": 0.0, "sigma": 0.4},
-        {"mu": 0.0, "sigma": 0.6},
-        {"mu": 0.0, "sigma": 0.8},
-        {"mu": 0.0, "sigma": 1.0},
-        {"mu": 0.1, "sigma": 0.4},
-        {"mu": 0.1, "sigma": 0.6},
-        {"mu": 0.1, "sigma": 0.8},
-        {"mu": 0.1, "sigma": 1.0},
-        {"mu": 0.3, "sigma": 0.4},
-        {"mu": 0.3, "sigma": 0.6},
-        {"mu": 0.3, "sigma": 0.8},
-        {"mu": 0.3, "sigma": 1.0},
-    ]
 
-    i = 1
+def main(format_, config_path, data_dir="data"):
+    config = load_config(config_path)
+    simulation_parameters = config["simulation_parameters"]
+    gbm_parameters = config["gbm_parameters"]
+
+    i = 0
     for sim_param in simulation_parameters:
         for gbm_param in gbm_parameters:
             n = sim_param["n"]
             St = simulate_gbm(cos_transform=True, dt=1 / n, **sim_param, **gbm_param)
-            dir_path = f"{format_}_dataset"
+            dir_path = f"{data_dir}/{format_}_dataset"
             os.makedirs(dir_path, exist_ok=True)
             save_dataset(f"./{dir_path}/gbm-{i}", St, format_)
 
@@ -59,4 +50,25 @@ def save_dataset(filename, St, format_):
 
 
 if __name__ == "__main__":
-    main("tsdiff")
+    parser = argparse.ArgumentParser(
+        description="Simulate GBM and save datasets in specified format."
+    )
+    parser.add_argument(
+        "-f",
+        "--format",
+        type=str,
+        help="The format to save the dataset (e.g., 'diffusionts' or 'tsdiff').",
+    )
+    parser.add_argument(
+        "-c", "--config_path", type=str, help="The path to the configuration file."
+    )
+    parser.add_argument(
+        "-d",
+        "--data_dir",
+        type=str,
+        default="data",
+        help="The directory to save the datasets.",
+    )
+    args = parser.parse_args()
+
+    main(args.format, args.config_path, args.data_dir)
