@@ -50,17 +50,24 @@ def estimate_log_mu(series, dt):
     return (series[-1] - series[0]) / (len(series) * dt)
 
 
+def estimate_mle_log_mu(series, dt):
+    tt = np.linspace(0, len(series) * dt, len(series))
+    total = (1.0 / dt) * (tt**2).sum()
+    return 1 / total * (1.0 / dt) * (tt * series).sum()
+
+
 def estimate_mu(log_mu, sigma):
     return log_mu + 0.5 * sigma**2
 
 
-def estimate_parameters(series, dt, ret_distribution=False):
+def estimate_parameters(series, dt, ret_distribution=False, mle_estimator=False):
     log_st = np.log(series).T
     estimated_mus = []
     estimated_sigmas = []
+    log_mu_estimator = estimate_mle_log_mu if mle_estimator else estimate_log_mu
     for i, path in enumerate(log_st):
         estimated_sigma = estimate_sigma(path, dt=dt)
-        log_mu = estimate_log_mu(path, dt=dt)
+        log_mu = log_mu_estimator(path, dt=dt)
         estimated_mu = estimate_mu(log_mu, estimated_sigma)
         estimated_mus.append(estimated_mu)
         estimated_sigmas.append(estimated_sigma)
