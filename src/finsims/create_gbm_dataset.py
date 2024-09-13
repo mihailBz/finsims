@@ -21,16 +21,18 @@ def main(format_, config_path, data_dir="data"):
     for sim_param in simulation_parameters:
         for gbm_param in gbm_parameters:
             n = sim_param["n"]
-            St = simulate_gbm(cos_transform=True, dt=1 / n, **sim_param, **gbm_param)
-            dir_path = f"{data_dir}/{format_}_dataset"
+            St, log_returns = simulate_gbm(dt=1 / n, return_log=True, **sim_param, **gbm_param)
+            dir_path = f"{data_dir}"
             os.makedirs(dir_path, exist_ok=True)
-            save_dataset(f"./{dir_path}/gbm-{i}", St, format_)
+            save_dataset(f"{dir_path}/gbm-{i}", St, format_)
+            save_dataset(f"{dir_path}/log-returns-{i}", log_returns, format_)
+            # save_dataset(f"{dir_path}/cos-gbm-{i}", St_cos, format_)
 
             parameters = {
                 "simulation_parameters": sim_param,
                 "gbm_parameters": gbm_param,
             }
-            param_filename = f"./{dir_path}/gbm-{i}-params.json"
+            param_filename = f"{dir_path}/gbm-{i}-params.json"
             with open(param_filename, "w") as f:
                 json.dump(parameters, f, indent=4)
 

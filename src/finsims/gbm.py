@@ -4,14 +4,14 @@ from scipy.fftpack import dct, idct
 
 
 def cosine_transform(series):
-    return dct(series, norm="ortho")
+    return dct(series, norm='ortho', axis=0)
 
 
 def inverse_cosine_transform(series):
-    return idct(series, norm="ortho")
+    return idct(series, norm='ortho', axis=0)
 
 
-def simulate_gbm(mu, sigma, n, M, dt, s0=None, cos_transform=False):
+def simulate_gbm(mu, sigma, n, M, dt, s0=None, cos_transform=False, return_log=False):
     St = np.exp(
         (mu - (sigma**2) / 2) * dt
         + sigma * np.sqrt(dt) * np.random.normal(0, 1, size=(M, n)).T
@@ -21,9 +21,12 @@ def simulate_gbm(mu, sigma, n, M, dt, s0=None, cos_transform=False):
         St = s0 * St.cumprod(axis=0)
     else:
         St = St.cumprod(axis=0)
-
+    
+    if return_log:
+        return St, np.diff(np.log(St), axis=0)    
+        
     if cos_transform:
-        return cosine_transform(St)
+        return St, cosine_transform(St)
     else:
         return St
 
