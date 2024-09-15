@@ -4,7 +4,10 @@ import os
 from datetime import date
 
 import numpy as np
+import pywt
 from gbm import simulate_gbm
+from transformations import cosine_transform, log_return
+from wavelet_transformations import wavelet_transform
 
 
 def load_config(config_path):
@@ -12,7 +15,7 @@ def load_config(config_path):
         return json.load(f)
 
 
-def main(format_, config_path, data_dir="data"):
+def main(format_, config_path, data_dir="data", transformations=None):
     config = load_config(config_path)
     simulation_parameters = config["simulation_parameters"]
     gbm_parameters = config["gbm_parameters"]
@@ -21,12 +24,32 @@ def main(format_, config_path, data_dir="data"):
     for sim_param in simulation_parameters:
         for gbm_param in gbm_parameters:
             n = sim_param["n"]
-            St, log_returns = simulate_gbm(dt=1 / n, return_log=True, **sim_param, **gbm_param)
+            St = simulate_gbm(dt=1 / n, **sim_param, **gbm_param)
             dir_path = f"{data_dir}"
             os.makedirs(dir_path, exist_ok=True)
             save_dataset(f"{dir_path}/gbm-{i}", St, format_)
-            save_dataset(f"{dir_path}/log-returns-{i}", log_returns, format_)
-            # save_dataset(f"{dir_path}/cos-gbm-{i}", St_cos, format_)
+            for transformation in transformations:
+                if transformation == "cosine":
+                    St_cos = cosine_transform(St)
+                    save_dataset(f"{dir_path}/cos-gbm-{i}", St_cos, format_)
+                elif transformation == "log-return":
+                    log_returns = log_return(St)
+                    save_dataset(f"{dir_path}/log-returns-{i}", log_returns, format_)
+                else:
+                    if transformation in pywt.wavelist():
+                        coeffs, coeffs_shapes = wavelet_transform(St, transformation)
+                        save_dataset(
+                            f"{dir_path}/{transformation}-gbm-{i}", coeffs, format_
+                        )
+                        wavelet_params_f = (
+                            f"{dir_path}/{transformation}-gbm-{i}-params.json"
+                        )
+                        wavelet_params = {
+                            "coeffs_shapes": coeffs_shapes[0].flatten().tolist(),
+                            "wavelet_name": transformation,
+                        }
+                        with open(wavelet_params_f, "w") as f:
+                            json.dump(wavelet_params, f, indent=4)
 
             parameters = {
                 "simulation_parameters": sim_param,
@@ -51,6 +74,15 @@ def save_dataset(filename, St, format_):
                 file.write(json.dumps(path) + "\n")
 
 
+def extract_targets_from_jsonl(file_path):
+    targets = []
+    with open(file_path, "r") as file:
+        for line in file:
+            data = json.loads(line)
+            targets.append(data["target"])
+    return np.array(targets).T
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Simulate GBM and save datasets in specified format."
@@ -71,6 +103,13 @@ if __name__ == "__main__":
         default="data",
         help="The directory to save the datasets.",
     )
+    parser.add_argument(
+        "-t",
+        "--transformations",
+        nargs="+",
+        default=[],
+        help="The transformations to apply to the dataset.",
+    )
     args = parser.parse_args()
 
-    main(args.format, args.config_path, args.data_dir)
+    main(args.format, args.config_path, args.data_dir, args.transformations)
