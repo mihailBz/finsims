@@ -92,9 +92,9 @@ def estimate_mjd_parameters(series, dt, threshold=3):
     params = {
         "mu": mu_hat_adj,
         "sigma": sigma_diffusion_hat,
-        "lambda": lamb_hat,
-        "mu_j": mu_j_hat,
-        "sigma_j": sigma_j_hat,
+        "lamb": lamb_hat,
+        "mu_j": None if len(jump_indices) == 0 else mu_j_hat,
+        "sigma_j": None if len(jump_indices) <= 1 else sigma_j_hat,
     }
 
     return params
