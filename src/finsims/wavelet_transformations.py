@@ -38,7 +38,7 @@ def wavelet_transform(data, wavelet_name):
     return np.array(concatenated_coeffs_list).T, np.array(coeff_shapes_list)
 
 
-def restore_coeffs(concatenated_coeffs_list, coeff_shapes_list):
+def restore_coeffs(concatenated_coeffs_list, coeff_shapes):
     """
     Restores wavelet coefficients from concatenated arrays for each time series.
 
@@ -52,9 +52,7 @@ def restore_coeffs(concatenated_coeffs_list, coeff_shapes_list):
     restored_coeffs_list = []
 
     # Loop through each time series
-    for concatenated_coeffs, coeff_shapes in zip(
-        concatenated_coeffs_list.T, coeff_shapes_list
-    ):
+    for concatenated_coeffs in concatenated_coeffs_list.T:
         restored_coeffs = []
         start = 0
 

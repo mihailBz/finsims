@@ -33,7 +33,7 @@ def main(format_, config_path, data_dir="data", transformations=None):
                     save_dataset(f"{dir_path}/cos-gbm-{i}", St_cos, format_)
                 elif transformation == "log-return":
                     log_returns = log_return(St)
-                    save_dataset(f"{dir_path}/log-returns-{i}", log_returns, format_)
+                    save_dataset(f"{dir_path}/log-return-gbm-{i}", log_returns, format_)
                 else:
                     if transformation in pywt.wavelist():
                         coeffs, coeffs_shapes = wavelet_transform(St, transformation)
