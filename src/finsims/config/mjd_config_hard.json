@@ -1,0 +1,8 @@
+{
+    "simulation_parameters": [
+        {"n": 1000, "M": 1000}
+    ],
+    "mjd_parameters": [
+        {"mu": 0.1, "sigma": 0.4, "lamb":  5, "mu_j":  0.01, "sigma_j": 0.4}
+    ]
+}
