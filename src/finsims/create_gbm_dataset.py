@@ -14,7 +14,7 @@ def load_config(config_path):
         return json.load(f)
 
 
-def main(format_, config_path, data_dir="data", transformations=None):
+def main(format_, config_path, data_dir="data", transformations=None, normalization=None):
     config = load_config(config_path)
     simulation_parameters = config["simulation_parameters"]
     gbm_parameters = config["gbm_parameters"]
@@ -30,6 +30,18 @@ def main(format_, config_path, data_dir="data", transformations=None):
             for transformation in transformations:
                 if transformation == "cosine":
                     St_cos = cosine_transform(St)
+                    if normalization == 'zscore':
+                        mean = St_cos.mean(axis=0)
+                        std = St_cos.std(axis=0)
+                        St_cos = (St_cos - mean) / std
+                        zscore_params = {
+                            "mean": mean.mean(),
+                            "std": std.mean(),
+                        }
+                        zscore_params_f = f"{dir_path}/zscore-gbm-{i}-params.json"
+                        with open(zscore_params_f, "w") as f:
+                            json.dump(zscore_params, f, indent=4)
+
                     save_dataset(f"{dir_path}/cos-gbm-{i}", St_cos, format_)
                 elif transformation == "log-return":
                     log_returns = log_return(St)
@@ -89,6 +101,13 @@ if __name__ == "__main__":
         default=[],
         help="The transformations to apply to the dataset.",
     )
+    parser.add_argument(
+        "-n",
+        "--normalization",
+        type=str,
+        default=None,
+        help="The normalization to apply to the dataset.",
+    )
     args = parser.parse_args()
 
-    main(args.format, args.config_path, args.data_dir, args.transformations)
+    main(args.format, args.config_path, args.data_dir, args.transformations, args.normalization)

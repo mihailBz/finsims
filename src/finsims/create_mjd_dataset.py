@@ -28,7 +28,7 @@ def main(format_, config_path, data_dir="data", transformations=None):
             os.makedirs(dir_path, exist_ok=True)
             save_dataset(f"{dir_path}/mjd-{i}", St, format_)
             for transformation in transformations:
-                if transformation == "cosine":
+                if transformation == "cos":
                     St_cos = cosine_transform(St)
                     save_dataset(f"{dir_path}/cos-mjd-{i}", St_cos, format_)
                 elif transformation == "log-return":
