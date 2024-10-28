@@ -1,4 +1,5 @@
 import argparse
+import os
 
 import yfinance as yf
 from jsonl_utils import save_dataset
@@ -12,7 +13,8 @@ def main(format_, data_dir, n, symbols):
         log_returns = log_return(data.dropna().to_numpy())
         max_length = log_returns.shape[0] - log_returns.shape[0] % n
         log_returns = log_returns[:max_length].reshape(-1, n)
-        save_dataset(f"{data_dir}/{symbol}_log_return", log_returns, format_)
+        os.makedirs(data_dir, exist_ok=True)
+        save_dataset(f"{data_dir}/{symbol}_log_return", log_returns.T, format_)
 
 
 if __name__ == "__main__":
