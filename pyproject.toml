@@ -19,7 +19,6 @@ jupyter = "^1.1.1"
 pywavelets = "^1.7.0"
 yfinance = "^0.2.43"
 statsmodels = "^0.14.3"
-arch = "^7.1.0"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.7.1"
